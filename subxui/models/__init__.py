@@ -9,6 +9,7 @@ from subxui.models.clash import (
     ClashVLESSProxy,
     ClashWSHeaders,
     ClashWSOpts,
+    ClashXHTTPOpts,
 )
 from subxui.models.enums import (
     Target,

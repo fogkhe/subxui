@@ -7,6 +7,7 @@ from subxui.models import (
     ClashVLESSProxy,
     ClashWSHeaders,
     ClashWSOpts,
+    ClashXHTTPOpts,
     ShareLink,
     Target,
 )
@@ -24,7 +25,7 @@ class ShareLinkConverter(BaseConverter):
 
 class ClashConverter(BaseConverter):
     def convert(self, link: ShareLink) -> ClashProxy:
-        if link.query.type not in ("tcp", "grpc", "ws", "httpupgrade"):
+        if link.query.type not in ("tcp", "grpc", "ws", "httpupgrade", "xhttp"):
             raise NotImplementedError(f"Network {link.query.type} not supported")
 
         match link.scheme:
@@ -51,6 +52,13 @@ class ClashConverter(BaseConverter):
                         v2ray_http_upgrade=(link.query.type == "httpupgrade"),  # type: ignore
                     )
                     if link.query.type in ("ws", "httpupgrade")
+                    else None,
+                    xhttp_opts=ClashXHTTPOpts(  # type: ignore
+                        path=link.query.path,
+                        host=link.query.host,
+                        mode=link.query.mode if link.query.mode != "auto" else None,
+                    )
+                    if link.query.type == "xhttp"
                     else None,
                     tls=link.query.security in ("tls", "reality"),
                     sni=link.query.sni if link.scheme != "vless" else None,

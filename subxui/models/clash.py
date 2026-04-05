@@ -36,6 +36,10 @@ class ClashProxy(BaseModel):
         default=None,
         alias="ws-opts",
     )  # Only if link.query.type is "ws" or "httpupgrade"
+    xhttp_opts: ClashXHTTPOpts | None = Field(
+        default=None,
+        alias="xhttp-opts",
+    )  # Only if link.query.type is "xhttp"
 
 
 class ClashGRPCOpts(BaseModel):
@@ -75,6 +79,22 @@ class ClashWSHeaders(BaseModel):
         default=None,
         alias="Host",
     )  # link.query.host
+
+
+class ClashXHTTPOpts(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+
+    path: str | None = Field(
+        default=None,
+    )  # link.query.path
+    host: str | None = Field(
+        default=None,
+    )  # link.query.host
+    mode: str | None = Field(
+        default=None,
+    )  # link.query.mode
 
 
 class ClashTLSProxy(ClashProxy):
