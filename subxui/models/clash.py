@@ -25,6 +25,24 @@ class ClashProxy(BaseModel):
     udp: bool = Field(
         default=True,
     )
+    network: str | None = Field(
+        default=None,
+    )  # link.query.type
+    grpc_opts: ClashGRPCOpts | None = Field(
+        default=None,
+        alias="grpc-opts",
+    )  # Only if link.query.type is "grpc"
+
+
+class ClashGRPCOpts(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+
+    grpc_service_name: str | None = Field(
+        default=None,
+        alias="grpc-service-name",
+    )  # link.query.service_name
 
 
 class ClashTLSProxy(ClashProxy):
@@ -79,9 +97,6 @@ class ClashVLESSProxy(ClashTLSProxy):
     encryption: str | None = Field(
         default=None,
     )  # link.query.encryption
-    network: str | None = Field(
-        default=None,
-    )  # link.query.type
 
 
 ClashAnyProxy = ClashVLESSProxy

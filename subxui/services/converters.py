@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 
 from subxui.models import (
+    ClashGRPCOpts,
     ClashProxy,
     ClashRealityOpts,
     ClashVLESSProxy,
@@ -21,7 +22,7 @@ class ShareLinkConverter(BaseConverter):
 
 class ClashConverter(BaseConverter):
     def convert(self, link: ShareLink) -> ClashProxy:
-        if link.query.type != "tcp":
+        if link.query.type not in ("tcp", "grpc"):
             raise NotImplementedError(f"Network {link.query.type} not supported")
 
         match link.scheme:
@@ -32,6 +33,12 @@ class ClashConverter(BaseConverter):
                     server=link.netloc.hostname,
                     port=link.netloc.port,
                     udp=True,
+                    network=link.query.type,
+                    grpc_opts=ClashGRPCOpts(  # type: ignore
+                        grpc_service_name=link.query.service_name,  # type: ignore
+                    )
+                    if link.query.type == "grpc"
+                    else None,
                     tls=link.query.security in ("tls", "reality"),
                     sni=link.query.sni if link.scheme != "vless" else None,
                     servername=link.query.sni if link.scheme == "vless" else None,
@@ -49,7 +56,6 @@ class ClashConverter(BaseConverter):
                     uuid=link.netloc.username,
                     flow=link.query.flow,
                     encryption=link.query.encryption,
-                    network=link.query.type,
                 )
 
             case _:

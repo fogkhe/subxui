@@ -1,6 +1,7 @@
 from subxui.models.clash import (
     Clash,
     ClashAnyProxy,
+    ClashGRPCOpts,
     ClashProxy,
     ClashProxyGroup,
     ClashRealityOpts,
