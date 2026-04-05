@@ -27,7 +27,7 @@ class Aggregator:
         target: Target,
     ) -> Subscription | None:
         logger.info(
-            f"Aggregating subscription for user {user_id!r} (target {target!r})..."
+            f"Aggregating subscription for user {user_id!r} (target {target.value!r})..."
         )
 
         links = []
@@ -36,27 +36,24 @@ class Aggregator:
                 try:
                     response = await client.get(f"/{user_id}")
                     response.raise_for_status()
-                except HTTPStatusError, RequestError:
+                except (HTTPStatusError, RequestError) as exc:
                     logger.error(
-                        f"Could not fetch subscription from {source.base_url!r}",
-                        exc_info=True,
+                        f"Could not fetch subscription from {source.base_url!r}: {exc}",
                     )
                     continue
             try:
                 decoded_links = b64decode(response.text).decode("utf-8")
-            except BinASCIIError, UnicodeDecodeError:
+            except (BinASCIIError, UnicodeDecodeError) as exc:
                 logger.error(
-                    f"Could not Base64-decode subscription {response.text!r} from {source.base_url!r}",
-                    exc_info=True,
+                    f"Could not Base64-decode subscription {response.text!r} from {source.base_url!r}: {exc}",
                 )
                 continue
             for line in decoded_links.splitlines():
                 try:
                     link = ShareLink.from_url(line)
-                except ValidationError:
+                except ValidationError as exc:
                     logger.error(
-                        f"Could not parse link {line!r} from {source.base_url}",
-                        exc_info=True,
+                        f"Could not parse link {line!r} from {source.base_url}: {exc}",
                     )
                     continue
                 if source.hostname_override is not None:
@@ -65,7 +62,7 @@ class Aggregator:
 
         if not links:
             logger.info(
-                f"No valid links found for user {user_id!r} (target {target!r})"
+                f"No valid links found for user {user_id!r} (target {target.value!r})"
             )
             return None
 
@@ -76,22 +73,21 @@ class Aggregator:
         for link in links:
             try:
                 entry = converter.convert(link)
-            except NotImplementedError, ValidationError:
+            except (NotImplementedError, ValidationError) as exc:
                 logger.error(
-                    f"Could not convert link {link!r} for target {target!r}",
-                    exc_info=True,
+                    f"Could not convert link {link!r} for target {target.value!r}: {exc}",
                 )
                 continue
             entries.append(entry)
 
         if not entries:
             logger.info(
-                f"No supported links found for user {user_id!r} (target {target!r})"
+                f"No supported links found for user {user_id!r} (target {target.value!r})"
             )
             return None
 
         logger.info(
-            f"Aggregated {len(entries)} entries for user {user_id!r} (target {target!r})"
+            f"Aggregated {len(entries)} entries for user {user_id!r} (target {target.value!r})"
         )
 
         return composer.compose(entries)
