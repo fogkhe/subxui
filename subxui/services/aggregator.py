@@ -14,7 +14,6 @@ from subxui.models import (
 from subxui.services.composers import ComposerFactory
 from subxui.services.converters import ConverterFactory
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -37,7 +36,7 @@ class Aggregator:
                 try:
                     response = await client.get(f"/{user_id}")
                     response.raise_for_status()
-                except (HTTPStatusError, RequestError):
+                except HTTPStatusError, RequestError:
                     logger.error(
                         f"Could not fetch subscription from {source.base_url!r}",
                         exc_info=True,
@@ -45,7 +44,7 @@ class Aggregator:
                     continue
             try:
                 decoded_links = b64decode(response.text).decode("utf-8")
-            except (BinASCIIError, UnicodeDecodeError):
+            except BinASCIIError, UnicodeDecodeError:
                 logger.error(
                     f"Could not Base64-decode subscription {response.text!r} from {source.base_url!r}",
                     exc_info=True,
@@ -71,7 +70,7 @@ class Aggregator:
         for link in links:
             try:
                 entry = converter.convert(link)
-            except (NotImplementedError, ValidationError):
+            except NotImplementedError, ValidationError:
                 logger.error(
                     f"Could not convert link {link!r} for target {target!r}",
                     exc_info=True,

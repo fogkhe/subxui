@@ -3,7 +3,6 @@ from base64 import b64encode
 import yaml
 from pydantic import BaseModel
 
-from subxui.settings import settings
 from subxui.models import (
     Clash,
     ClashProxy,
@@ -12,6 +11,7 @@ from subxui.models import (
     Subscription,
     Target,
 )
+from subxui.settings import settings
 
 
 class BaseComposer:

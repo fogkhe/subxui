@@ -4,7 +4,6 @@ from subxui.models import Target
 from subxui.services import Aggregator
 from subxui.settings import settings
 
-
 app = FastAPI(
     openapi_url=None,
 )
