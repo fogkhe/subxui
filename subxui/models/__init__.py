@@ -7,6 +7,8 @@ from subxui.models.clash import (
     ClashRealityOpts,
     ClashTLSProxy,
     ClashVLESSProxy,
+    ClashWSHeaders,
+    ClashWSOpts,
 )
 from subxui.models.enums import (
     Target,

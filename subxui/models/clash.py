@@ -32,6 +32,10 @@ class ClashProxy(BaseModel):
         default=None,
         alias="grpc-opts",
     )  # Only if link.query.type is "grpc"
+    ws_opts: ClashWSOpts | None = Field(
+        default=None,
+        alias="ws-opts",
+    )  # Only if link.query.type is "ws" or "httpupgrade"
 
 
 class ClashGRPCOpts(BaseModel):
@@ -43,6 +47,34 @@ class ClashGRPCOpts(BaseModel):
         default=None,
         alias="grpc-service-name",
     )  # link.query.service_name
+
+
+class ClashWSOpts(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+
+    path: str | None = Field(
+        default=None,
+    )  # link.query.path
+    headers: ClashWSHeaders | None = Field(
+        default=None,
+    )
+    v2ray_http_upgrade: bool | None = Field(
+        default=None,
+        alias="v2ray-http-upgrade",
+    )  # True if link.query.type is "httpupgrade"
+
+
+class ClashWSHeaders(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+
+    host: str | None = Field(
+        default=None,
+        alias="Host",
+    )  # link.query.host
 
 
 class ClashTLSProxy(ClashProxy):
