@@ -63,6 +63,12 @@ class Aggregator:
                     link.netloc.hostname = source.hostname_override
                 links.append(link)
 
+        if not links:
+            logger.info(
+                f"No valid links found for user {user_id!r} (target {target!r})"
+            )
+            return None
+
         converter = ConverterFactory.get_converter(target)
         composer = ComposerFactory.get_composer(target)
 
@@ -77,6 +83,12 @@ class Aggregator:
                 )
                 continue
             entries.append(entry)
+
+        if not entries:
+            logger.info(
+                f"No supported links found for user {user_id!r} (target {target!r})"
+            )
+            return None
 
         logger.info(
             f"Aggregated {len(entries)} entries for user {user_id!r} (target {target!r})"
