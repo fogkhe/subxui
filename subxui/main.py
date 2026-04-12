@@ -39,4 +39,5 @@ async def get_subscription(
     return Response(
         content=subscription.content,
         media_type=subscription.media_type,
+        headers={"subscription-userinfo": str(subscription.user_info)},
     )

@@ -11,6 +11,7 @@ from subxui.models import (
     SubscriptionSource,
     Target,
 )
+from subxui.models.subscription import SubscriptionUserInfo
 from subxui.services.composers import ComposerFactory
 from subxui.services.converters import ConverterFactory
 
@@ -30,6 +31,13 @@ class Aggregator:
             f"Aggregating subscription for user {user_id!r} (target {target.value!r})..."
         )
 
+        subscription_user_info = SubscriptionUserInfo(
+            upload=0,
+            download=0,
+            total=0,
+            expire=0,
+        )
+
         links = []
         for source in self.sources:
             async with AsyncClient(base_url=source.base_url) as client:
@@ -41,6 +49,19 @@ class Aggregator:
                         f"Could not fetch subscription from {source.base_url!r}: {exc}",
                     )
                     continue
+
+            source_user_info = None
+            if header := response.headers.get("subscription-userinfo"):
+                try:
+                    source_user_info = SubscriptionUserInfo.from_header(
+                        header=header,
+                    )
+                    subscription_user_info.add(source_user_info)
+                except ValidationError as exc:
+                    logger.error(
+                        f"Could not parse 'subscription-userinfo' header {header!r} from {source.base_url!r}: {exc}",
+                    )
+
             try:
                 decoded_links = b64decode(response.text).decode("utf-8")
             except (BinASCIIError, UnicodeDecodeError) as exc:
@@ -87,7 +108,10 @@ class Aggregator:
             return None
 
         logger.info(
-            f"Aggregated {len(entries)} entries for user {user_id!r} (target {target.value!r})"
+            f"Aggregated {len(entries)} entries for user {user_id!r} (target {target.value!r}, user info: {subscription_user_info})",
         )
 
-        return composer.compose(entries)
+        subscription = composer.compose(entries)
+        subscription.user_info = subscription_user_info
+
+        return subscription
