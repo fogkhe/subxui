@@ -67,7 +67,7 @@ class ClashConverter(BaseConverter):
                         max_connections=8,  # type: ignore
                         padding=True,
                     )
-                    if link.query.type == "tcp"
+                    if link.query.type == "tcp" and link.query.flow is None
                     else None,
                     tls=link.query.security in ("tls", "reality"),
                     sni=link.query.sni if link.scheme != "vless" else None,
