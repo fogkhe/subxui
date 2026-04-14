@@ -57,7 +57,7 @@ class Aggregator:
                         header=header,
                     )
                     subscription_user_info.add(source_user_info)
-                except ValidationError as exc:
+                except (ValidationError, ValueError) as exc:
                     logger.error(
                         f"Could not parse 'subscription-userinfo' header {header!r} from {source.base_url!r}: {exc}",
                     )
