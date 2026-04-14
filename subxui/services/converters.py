@@ -4,6 +4,7 @@ from subxui.models import (
     ClashGRPCOpts,
     ClashProxy,
     ClashRealityOpts,
+    ClashSMUX,
     ClashVLESSProxy,
     ClashWSHeaders,
     ClashWSOpts,
@@ -59,6 +60,14 @@ class ClashConverter(BaseConverter):
                         mode=link.query.mode if link.query.mode != "auto" else None,
                     )
                     if link.query.type == "xhttp"
+                    else None,
+                    tfo=True if link.query.type == "tcp" else None,
+                    smux=ClashSMUX(
+                        enabled=True,
+                        max_connections=8,  # type: ignore
+                        padding=True,
+                    )
+                    if link.query.type == "tcp"
                     else None,
                     tls=link.query.security in ("tls", "reality"),
                     sni=link.query.sni if link.scheme != "vless" else None,

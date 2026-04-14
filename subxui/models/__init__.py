@@ -5,6 +5,7 @@ from subxui.models.clash import (
     ClashProxy,
     ClashProxyGroup,
     ClashRealityOpts,
+    ClashSMUX,
     ClashTLSProxy,
     ClashVLESSProxy,
     ClashWSHeaders,

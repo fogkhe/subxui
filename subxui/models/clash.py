@@ -40,6 +40,12 @@ class ClashProxy(BaseModel):
         default=None,
         alias="xhttp-opts",
     )  # Only if link.query.type is "xhttp"
+    tfo: bool | None = Field(
+        default=None,
+    )  # Only if network is "tcp"
+    smux: ClashSMUX | None = Field(
+        default=None,
+    )  # Only if network is "tcp"
 
 
 class ClashGRPCOpts(BaseModel):
@@ -95,6 +101,18 @@ class ClashXHTTPOpts(BaseModel):
     mode: str | None = Field(
         default=None,
     )  # link.query.mode
+
+
+class ClashSMUX(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+
+    enabled: bool = Field()
+    max_connections: int = Field(
+        alias="max-connections",
+    )
+    padding: bool = Field()
 
 
 class ClashTLSProxy(ClashProxy):
