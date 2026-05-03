@@ -1,3 +1,4 @@
+import secrets
 from base64 import b64encode
 
 import yaml
@@ -49,6 +50,8 @@ class ClashComposer(BaseComposer):
                 )
             ],
             rules=settings.clash_rules,
+            authentication=[f"user:{secrets.token_urlsafe(32)}"],
+            skip_auth_prefixes=[],  # type: ignore
         )
 
         content = yaml.safe_dump(

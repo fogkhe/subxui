@@ -11,6 +11,13 @@ class Clash(BaseModel):
         alias="proxy-groups",
     )
     rules: list[str]
+    authentication: list[str] | None = Field(
+        default=None,
+    )
+    skip_auth_prefixes: list[str] | None = Field(
+        default=None,
+        alias="skip-auth-prefixes",
+    )
 
 
 class ClashProxy(BaseModel):
