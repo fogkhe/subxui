@@ -26,7 +26,7 @@ class Aggregator:
         limit: int | None,
     ) -> None:
         self.sources = sources
-        self.limit = limit
+        self.limit = limit or 100
 
     async def aggregate(
         self,
@@ -102,12 +102,6 @@ class Aggregator:
             )
             return None
 
-        if self.limit is not None and len(links) > self.limit:
-            links = random.sample(
-                population=links,
-                k=self.limit,
-            )
-
         links.sort(
             key=lambda link: link.fragment,
         )
@@ -131,6 +125,12 @@ class Aggregator:
                 f"No supported links found for user {user_id!r} (target {target.value!r})"
             )
             return None
+
+        if len(entries) > self.limit:
+            entries = random.sample(
+                population=entries,
+                k=self.limit,
+            )
 
         logger.info(
             f"Aggregated {len(entries)} entries for user {user_id!r} (target {target.value!r}, user info: {subscription_user_info})",
