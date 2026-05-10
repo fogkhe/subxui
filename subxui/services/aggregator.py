@@ -1,4 +1,5 @@
 import logging
+import random
 from base64 import b64decode
 from binascii import Error as BinASCIIError
 
@@ -19,8 +20,13 @@ logger = logging.getLogger(__name__)
 
 
 class Aggregator:
-    def __init__(self, sources: list[SubscriptionSource]) -> None:
+    def __init__(
+        self,
+        sources: list[SubscriptionSource],
+        limit: int | None,
+    ) -> None:
         self.sources = sources
+        self.limit = limit
 
     async def aggregate(
         self,
@@ -42,7 +48,10 @@ class Aggregator:
         for source in self.sources:
             async with AsyncClient(base_url=source.base_url) as client:
                 try:
-                    response = await client.get(f"/{user_id}")
+                    response = await client.get(
+                        f"/{user_id}",
+                        timeout=3,
+                    )
                     response.raise_for_status()
                 except (HTTPStatusError, RequestError) as exc:
                     logger.error(
@@ -61,6 +70,12 @@ class Aggregator:
                     logger.error(
                         f"Could not parse 'subscription-userinfo' header {header!r} from {source.base_url!r}: {exc}",
                     )
+
+            if len(response.text) > 10 * 1024 * 1024:
+                logger.error(
+                    f"Subscription too large from {source.base_url!r} ({len(response.text)} bytes), skipping",
+                )
+                continue
 
             try:
                 decoded_links = b64decode(response.text).decode("utf-8")
@@ -86,6 +101,16 @@ class Aggregator:
                 f"No valid links found for user {user_id!r} (target {target.value!r})"
             )
             return None
+
+        if self.limit is not None and len(links) > self.limit:
+            links = random.sample(
+                population=links,
+                k=self.limit,
+            )
+
+        links.sort(
+            key=lambda link: link.fragment,
+        )
 
         converter = ConverterFactory.get_converter(target)
         composer = ComposerFactory.get_composer(target)

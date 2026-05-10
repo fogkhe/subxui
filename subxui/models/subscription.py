@@ -21,6 +21,20 @@ class SubscriptionSource(BaseModel):
     )
 
 
+class SubscriptionProfile(BaseModel):
+    path: str
+    sources: list[SubscriptionSource] = Field(
+        default_factory=list,
+    )
+    per_user: bool = Field(
+        default=True,
+        alias="perUser",
+    )
+    limit: int | None = Field(
+        default=None,
+    )
+
+
 class SubscriptionUserInfo(BaseModel):
     upload: int = Field()
     download: int = Field()
@@ -33,8 +47,11 @@ class SubscriptionUserInfo(BaseModel):
 
         pairs = header.split(";")
         for pair in pairs:
+            pair = pair.strip()
+            if not pair or "=" not in pair:
+                continue
             key, value = pair.split("=", 1)
-            kwargs[key.strip()] = value.strip()
+            kwargs[key.strip()] = int(value.strip())
 
         return cls(**kwargs)
 
@@ -51,4 +68,6 @@ class SubscriptionUserInfo(BaseModel):
         self.upload += other.upload
         self.download += other.download
         self.total += other.total
-        self.expire = min(self.expire, other.expire) if self.expire else other.expire
+        self.expire = (
+            min(self.expire, other.expire) if self.expire > 0 else other.expire
+        )

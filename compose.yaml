@@ -7,6 +7,6 @@ services:
     env_file:
       - .env
     volumes:
-      - /etc/letsencrypt/live/timsk.su/fullchain.pem:/certs/fullchain.pem:ro
-      - /etc/letsencrypt/live/timsk.su/privkey.pem:/certs/privkey.pem:ro
+      - /etc/letsencrypt/live/example.com/fullchain.pem:/certs/fullchain.pem:ro
+      - /etc/letsencrypt/live/example.com/privkey.pem:/certs/privkey.pem:ro
     command: ["--port", "31219", "--ssl-certfile", "/certs/fullchain.pem", "--ssl-keyfile", "/certs/privkey.pem"]

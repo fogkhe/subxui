@@ -3,7 +3,7 @@ import logging
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from subxui.models import SubscriptionSource
+from subxui.models import SubscriptionProfile
 
 
 class Settings(BaseSettings):
@@ -19,10 +19,7 @@ class Settings(BaseSettings):
     log_level: str = Field(
         default="INFO",
     )
-    secret_path: str = Field(
-        default="sub",
-    )
-    subscription_sources: list[SubscriptionSource] = Field(
+    profiles: list[SubscriptionProfile] = Field(
         default_factory=list,
     )
 

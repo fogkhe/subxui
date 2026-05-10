@@ -9,12 +9,27 @@ app = FastAPI(
 )
 
 
-@app.get(f"/{settings.secret_path}/{{user_id}}")
-async def get_subscription(
+@app.get("/{profile_path}/{user_id}")
+async def get_user_subscription(
     request: Request,
+    profile_path: str,
     user_id: str,
     target: Target | None = None,
 ) -> Response:
+    try:
+        profile = next(
+            profile for profile in settings.profiles if profile.path == profile_path
+        )
+    except StopIteration:
+        raise HTTPException(
+            status_code=404,
+        )
+
+    if (profile.per_user and not user_id) or (not profile.per_user and user_id):
+        raise HTTPException(
+            status_code=404,
+        )
+
     if target is None:
         accept = request.headers.get("Accept", "")
         user_agent = request.headers.get("User-Agent", "")
@@ -26,7 +41,10 @@ async def get_subscription(
         else:
             target = Target.BASE64
 
-    subscription = await Aggregator(settings.subscription_sources).aggregate(
+    subscription = await Aggregator(
+        sources=profile.sources,
+        limit=profile.limit,
+    ).aggregate(
         user_id=user_id,
         target=target,
     )
@@ -36,8 +54,26 @@ async def get_subscription(
             status_code=404,
         )
 
+    headers = {}
+    if subscription.user_info:
+        headers["subscription-userinfo"] = str(subscription.user_info)
+
     return Response(
         content=subscription.content,
         media_type=subscription.media_type,
-        headers={"subscription-userinfo": str(subscription.user_info)},
+        headers=headers,
+    )
+
+
+@app.get("/{profile_path}")
+async def get_subscription(
+    request: Request,
+    profile_path: str,
+    target: Target | None = None,
+) -> Response:
+    return await get_user_subscription(
+        request=request,
+        profile_path=profile_path,
+        user_id="",
+        target=target,
     )

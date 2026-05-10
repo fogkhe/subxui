@@ -22,5 +22,6 @@ from subxui.models.share_link import (
 )
 from subxui.models.subscription import (
     Subscription,
+    SubscriptionProfile,
     SubscriptionSource,
 )
