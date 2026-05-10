@@ -46,10 +46,10 @@ class Aggregator:
 
         links = []
         for source in self.sources:
-            async with AsyncClient(base_url=source.base_url) as client:
+            async with AsyncClient() as client:
                 try:
                     response = await client.get(
-                        f"/{user_id}",
+                        f"{source.base_url}/{user_id}" if user_id else source.base_url,
                         timeout=3,
                     )
                     response.raise_for_status()
@@ -80,10 +80,10 @@ class Aggregator:
             try:
                 decoded_links = b64decode(response.text).decode("utf-8")
             except (BinASCIIError, UnicodeDecodeError) as exc:
-                logger.error(
-                    f"Could not Base64-decode subscription {response.text!r} from {source.base_url!r}: {exc}",
+                logger.warning(
+                    f"Could not Base64-decode subscription {response.text[:100]!r} from {source.base_url!r}: {exc}",
                 )
-                continue
+                decoded_links = response.text
             for line in decoded_links.splitlines():
                 try:
                     link = ShareLink.from_url(line)
