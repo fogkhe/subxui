@@ -2,11 +2,8 @@ services:
   subxui:
     build: .
     container_name: subxui
-    network_mode: host
     restart: unless-stopped
     env_file:
       - .env
-    volumes:
-      - /etc/letsencrypt/live/example.com/fullchain.pem:/certs/fullchain.pem:ro
-      - /etc/letsencrypt/live/example.com/privkey.pem:/certs/privkey.pem:ro
-    command: ["--port", "31219", "--ssl-certfile", "/certs/fullchain.pem", "--ssl-keyfile", "/certs/privkey.pem"]
+    ports:
+      - "31219:8000"
