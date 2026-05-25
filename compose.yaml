@@ -3,6 +3,8 @@ services:
     build: .
     container_name: subxui
     restart: unless-stopped
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
     env_file:
       - .env
     ports:
