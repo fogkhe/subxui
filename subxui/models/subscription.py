@@ -1,6 +1,6 @@
 from typing import Self
 
-from pydantic import BaseModel, Field
+from pydantic import AliasChoices, BaseModel, Field
 
 
 class Subscription(BaseModel):
@@ -13,11 +13,19 @@ class Subscription(BaseModel):
 
 class SubscriptionSource(BaseModel):
     base_url: str = Field(
-        alias="baseUrl",
+        validation_alias=AliasChoices(
+            "base_url",
+            "base-url",
+            "baseUrl",  # Deprecated.
+        ),
     )
     hostname_override: str | None = Field(
         default=None,
-        alias="hostnameOverride",
+        validation_alias=AliasChoices(
+            "hostname_override",
+            "hostname-override",
+            "hostnameOverride",  # Deprecated.
+        ),
     )
 
 
@@ -28,7 +36,11 @@ class SubscriptionProfile(BaseModel):
     )
     per_user: bool = Field(
         default=True,
-        alias="perUser",
+        validation_alias=AliasChoices(
+            "per_user",
+            "per-user",
+            "perUser",  # Deprecated.
+        ),
     )
     limit: int | None = Field(
         default=None,

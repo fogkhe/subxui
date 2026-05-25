@@ -2,7 +2,7 @@ import logging
 from pathlib import Path
 
 import yaml
-from pydantic import Field
+from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from subxui.models import SubscriptionProfile
@@ -16,12 +16,24 @@ class Settings(BaseSettings):
 
     clash_proxy_group_name: str = Field(
         default="PROXY",
+        validation_alias=AliasChoices(
+            "clash_proxy_group_name",
+            "clash-proxy-group-name",
+        ),
     )
     clash_rules: list[str] = Field(
         default_factory=lambda: ["MATCH,PROXY"],
+        validation_alias=AliasChoices(
+            "clash_rules",
+            "clash-rules",
+        ),
     )
     log_level: str = Field(
         default="INFO",
+        validation_alias=AliasChoices(
+            "log_level",
+            "log-level",
+        ),
     )
     profiles: list[SubscriptionProfile] = Field(
         default_factory=list,
