@@ -1,4 +1,17 @@
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import AliasChoices, BaseModel, ConfigDict, Field
+
+
+class ClashSettings(BaseModel):
+    proxy_group_name: str = Field(
+        default="PROXY",
+        validation_alias=AliasChoices(
+            "proxy_group_name",
+            "proxy-group-name",
+        ),
+    )
+    rules: list[str] = Field(
+        default_factory=lambda: ["MATCH,PROXY"],
+    )
 
 
 class Clash(BaseModel):

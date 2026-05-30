@@ -14,20 +14,6 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
     )
 
-    clash_proxy_group_name: str = Field(
-        default="PROXY",
-        validation_alias=AliasChoices(
-            "clash_proxy_group_name",
-            "clash-proxy-group-name",
-        ),
-    )
-    clash_rules: list[str] = Field(
-        default_factory=lambda: ["MATCH,PROXY"],
-        validation_alias=AliasChoices(
-            "clash_rules",
-            "clash-rules",
-        ),
-    )
     log_level: str = Field(
         default="INFO",
         validation_alias=AliasChoices(

@@ -9,10 +9,9 @@ from pydantic import ValidationError
 from subxui.models import (
     ShareLink,
     Subscription,
-    SubscriptionSource,
     Target,
 )
-from subxui.models.subscription import SubscriptionUserInfo
+from subxui.models.subscription import SubscriptionProfile, SubscriptionUserInfo
 from subxui.services.composers import ComposerFactory
 from subxui.services.converters import ConverterFactory
 
@@ -22,11 +21,9 @@ logger = logging.getLogger(__name__)
 class Aggregator:
     def __init__(
         self,
-        sources: list[SubscriptionSource],
-        limit: int | None,
+        profile: SubscriptionProfile,
     ) -> None:
-        self.sources = sources
-        self.limit = limit or 100
+        self.profile = profile
 
     async def aggregate(
         self,
@@ -45,7 +42,7 @@ class Aggregator:
         )
 
         links = []
-        for source in self.sources:
+        for source in self.profile.sources:
             async with AsyncClient() as client:
                 try:
                     response = await client.get(
@@ -126,17 +123,18 @@ class Aggregator:
             )
             return None
 
-        if len(entries) > self.limit:
+        limit = self.profile.limit or 100
+        if len(entries) > limit:
             entries = random.sample(
                 population=entries,
-                k=self.limit,
+                k=limit,
             )
 
         logger.info(
             f"Aggregated {len(entries)} entries for user {user_id!r} (target {target.value!r}, user info: {subscription_user_info})",
         )
 
-        subscription = composer.compose(entries)
+        subscription = composer.compose(entries, self.profile)
         subscription.user_info = subscription_user_info
 
         return subscription

@@ -2,6 +2,8 @@ from typing import Self
 
 from pydantic import AliasChoices, BaseModel, Field
 
+from subxui.models.clash import ClashSettings
+
 
 class Subscription(BaseModel):
     content: str
@@ -16,7 +18,6 @@ class SubscriptionSource(BaseModel):
         validation_alias=AliasChoices(
             "base_url",
             "base-url",
-            "baseUrl",  # Deprecated.
         ),
     )
     hostname_override: str | None = Field(
@@ -24,7 +25,6 @@ class SubscriptionSource(BaseModel):
         validation_alias=AliasChoices(
             "hostname_override",
             "hostname-override",
-            "hostnameOverride",  # Deprecated.
         ),
     )
 
@@ -39,11 +39,13 @@ class SubscriptionProfile(BaseModel):
         validation_alias=AliasChoices(
             "per_user",
             "per-user",
-            "perUser",  # Deprecated.
         ),
     )
     limit: int | None = Field(
         default=None,
+    )
+    clash: ClashSettings = Field(
+        default_factory=ClashSettings,
     )
 
 

@@ -42,8 +42,7 @@ async def get_user_subscription(
             target = Target.BASE64
 
     subscription = await Aggregator(
-        sources=profile.sources,
-        limit=profile.limit,
+        profile=profile,
     ).aggregate(
         user_id=user_id,
         target=target,

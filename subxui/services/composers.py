@@ -12,16 +12,24 @@ from subxui.models import (
     Subscription,
     Target,
 )
-from subxui.settings import settings
+from subxui.models.subscription import SubscriptionProfile
 
 
 class BaseComposer:
-    def compose(self, entries: list[BaseModel]) -> Subscription:
+    def compose(
+        self,
+        entries: list[BaseModel],
+        profile: SubscriptionProfile,
+    ) -> Subscription:
         raise NotImplementedError
 
 
 class RawComposer(BaseComposer):
-    def compose(self, entries: list[ShareLink]) -> Subscription:  # type: ignore
+    def compose(  # type: ignore
+        self,
+        entries: list[ShareLink],
+        profile: SubscriptionProfile,
+    ) -> Subscription:
         content = "\n".join(str(link) for link in entries)
         return Subscription(
             content=content,
@@ -30,8 +38,12 @@ class RawComposer(BaseComposer):
 
 
 class Base64Composer(RawComposer):
-    def compose(self, entries: list[ShareLink]) -> Subscription:
-        subscription = super().compose(entries)
+    def compose(
+        self,
+        entries: list[ShareLink],
+        profile: SubscriptionProfile,
+    ) -> Subscription:
+        subscription = super().compose(entries, profile)
         subscription.content = b64encode(subscription.content.encode("utf-8")).decode(
             "utf-8"
         )
@@ -39,17 +51,21 @@ class Base64Composer(RawComposer):
 
 
 class ClashComposer(BaseComposer):
-    def compose(self, entries: list[ClashProxy]) -> Subscription:  # type: ignore
+    def compose(  # type: ignore
+        self,
+        entries: list[ClashProxy],
+        profile: SubscriptionProfile,
+    ) -> Subscription:
         config = Clash(
             proxies=entries,
             proxy_groups=[  # type: ignore
                 ClashProxyGroup(
-                    name=settings.clash_proxy_group_name,
+                    name=profile.clash.proxy_group_name,
                     type="select",
                     proxies=[proxy.name for proxy in entries],
                 )
             ],
-            rules=settings.clash_rules,
+            rules=profile.clash.rules,
             authentication=[f"user:{secrets.token_urlsafe(32)}"],
             skip_auth_prefixes=[],  # type: ignore
         )
