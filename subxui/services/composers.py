@@ -68,6 +68,7 @@ class ClashComposer(BaseComposer):
             rules=profile.clash.rules,
             authentication=[f"user:{secrets.token_urlsafe(32)}"],
             skip_auth_prefixes=[],  # type: ignore
+            dns=profile.clash.dns,
         )
 
         content = yaml.safe_dump(

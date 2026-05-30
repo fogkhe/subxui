@@ -12,6 +12,9 @@ class ClashSettings(BaseModel):
     rules: list[str] = Field(
         default_factory=lambda: ["MATCH,PROXY"],
     )
+    dns: ClashDNS | None = Field(
+        default=None,
+    )
 
 
 class Clash(BaseModel):
@@ -30,6 +33,9 @@ class Clash(BaseModel):
     skip_auth_prefixes: list[str] | None = Field(
         default=None,
         alias="skip-auth-prefixes",
+    )
+    dns: ClashDNS | None = Field(
+        default=None,
     )
 
 
@@ -200,3 +206,120 @@ class ClashProxyGroup(BaseModel):
     name: str
     type: str
     proxies: list[str]
+
+
+class ClashDNS(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+
+    enable: bool = Field(
+        default=True,
+    )
+    cache_algorithm: str | None = Field(
+        default=None,
+        alias="cache-algorithm",
+    )
+    prefer_h3: bool | None = Field(
+        default=None,
+        alias="prefer-h3",
+    )
+    listen: str | None = Field(
+        default=None,
+    )
+    ipv6: bool | None = Field(
+        default=None,
+    )
+    enhanced_mode: str | None = Field(
+        default=None,
+        alias="enhanced-mode",
+    )
+    fake_ip_range: str | None = Field(
+        default=None,
+        alias="fake-ip-range",
+    )
+    fake_ip_range6: str | None = Field(
+        default=None,
+        alias="fake-ip-range6",
+    )
+    fake_ip_filter: list[str] | None = Field(
+        default=None,
+        alias="fake-ip-filter",
+    )
+    fake_ip_filter_mode: str | None = Field(
+        default=None,
+        alias="fake-ip-filter-mode",
+    )
+    fake_ip_ttl: int | None = Field(
+        default=None,
+        alias="fake-ip-ttl",
+    )
+    use_hosts: bool | None = Field(
+        default=None,
+        alias="use-hosts",
+    )
+    use_system_hosts: bool | None = Field(
+        default=None,
+        alias="use-system-hosts",
+    )
+    respect_rules: bool | None = Field(
+        default=None,
+        alias="respect-rules",
+    )
+    default_nameserver: list[str] | None = Field(
+        default=None,
+        alias="default-nameserver",
+    )
+    nameserver_policy: dict[str, str | list[str]] | None = Field(
+        default=None,
+        alias="nameserver-policy",
+    )
+    proxy_server_nameserver: list[str] | None = Field(
+        default=None,
+        alias="proxy-server-nameserver",
+    )
+    proxy_server_nameserver_policy: dict[str, str | list[str]] | None = Field(
+        default=None,
+        alias="proxy-server-nameserver-policy",
+    )
+    direct_nameserver: list[str] | None = Field(
+        default=None,
+        alias="direct-nameserver",
+    )
+    direct_nameserver_follow_policy: bool | None = Field(
+        default=None,
+        alias="direct-nameserver-follow-policy",
+    )
+    nameserver: list[str] | None = Field(
+        default=None,
+    )
+    fallback: list[str] | None = Field(
+        default=None,
+    )
+    fallback_filter: ClashDNSFallbackFilter | None = Field(
+        default=None,
+        alias="fallback-filter",
+    )
+
+
+class ClashDNSFallbackFilter(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+
+    geoip: bool | None = Field(
+        default=None,
+    )
+    geoip_code: str | None = Field(
+        default=None,
+        alias="geoip-code",
+    )
+    geosite: list[str] | None = Field(
+        default=None,
+    )
+    ipcidr: list[str] | None = Field(
+        default=None,
+    )
+    domain: list[str] | None = Field(
+        default=None,
+    )
